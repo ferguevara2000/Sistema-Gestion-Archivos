@@ -28,9 +28,10 @@
 						include 'db_connect.php';
 						$dbInstance = Database::getInstance();
 						$db = $dbInstance->getConnection();
-						$users = $db->query("SELECT * FROM users order by name asc");
+						/* $users = $db->query("SELECT * FROM users order by name asc"); */
+						$result = $db->query("CALL sp_mostrarUsuarios()");
 						$i = 1;
-						while ($row = $users->fetch_assoc()) :
+						while ($row = $result->fetch_assoc()) :
 						?>
 							<tr>
 								<td>

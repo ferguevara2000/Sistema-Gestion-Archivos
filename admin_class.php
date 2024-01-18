@@ -87,7 +87,14 @@ Class Action {
 
 	function delete_user(){
 		extract($_POST);
-		$delete = $this->db->query("DELETE FROM users where id = ".$id);
+
+
+		//$delete = $this->db->query("DELETE FROM users where id = ".$id);
+		$delete = $this->db->prepare("CALL sp_eliminarUsuario(?)");
+		$delete->bind_param("i", $id); 
+		$delete->execute();
+		$delete->close();
+
 		if($delete)
 			return 1;
 	}
@@ -161,18 +168,36 @@ Class Action {
 	}
 	function save_user(){
 		extract($_POST);
-		$data = " name = '$name' ";
+		/* $data = " name = '$name' ";
 		$data .= ", username = '$username' ";
 		$data .= ", password = '$password' ";
-		$data .= ", type = '$type' ";
+		$data .= ", type = '$type' "; */
+
+		$name_data = " name = '$name' ";
+		$username_data = " username = '$username' ";
+		$password_data = " password = '$password' ";
+		$type_data = " type = '$type' ";
+
 		if(empty($id)){
-			$save = $this->db->query("INSERT INTO users set ".$data);
+			/* $save = $this->db->query("INSERT INTO users set ".$data); */
+			$stmt = $this->db->prepare("CALL sp_insertarUsuario(?, ?, ?, ?)");
+			$stmt->bind_param("ssss", $name, $username, $password, $type);
+			$stmt->execute();
+			$stmt->close();
+
+			
 		}else{
-			$save = $this->db->query("UPDATE users set ".$data." where id = ".$id);
+			/* $save = $this->db->query("UPDATE users set ".$data." where id = ".$id); */
+			// Actualizar usuario utilizando el procedimiento almacenado
+			$stmt = $this->db->prepare("CALL sp_actualizarUsuario(?, ?, ?, ?, ?)");
+			$stmt->bind_param("issss", $id, $name, $username, $password, $type);
+			$stmt->execute();
+			$stmt->close();
 		}
-		if($save){
+		if($stmt){
 			return 1;
-		}
+		} 
+		
 	}
 
 
