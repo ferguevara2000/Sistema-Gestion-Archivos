@@ -54,8 +54,12 @@
 	<?php
 	if (!isset($_SESSION['login_id']))
 	?>
-	<?php include('db_connect.php');
-$files = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.is_public = 1 order by date(f.date_updated) desc");
+	<?php 
+		include('db_connect.php');
+		$dbInstance = Database::getInstance();
+		$db = $dbInstance->getConnection();
+
+		$files = $db->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.is_public = 1 order by date(f.date_updated) desc");
 
 	?>
 	<div class="row">
@@ -65,7 +69,11 @@ $files = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users 
 					<h4><b>Usuarios </b></h4>
 					<hr>
 					<span class="card-icon"><i class="fa fa-users"></i></span>
-					<h3 class="text-right"><b><?php echo $conn->query('SELECT * FROM users')->num_rows ?></b></h3>
+					<h3 class="text-right"><b>
+						<?php 
+
+						echo $db->query('SELECT * FROM users')->num_rows 
+						?></b></h3>
 				</div>
 			</div>
 			<div class="card col-md-3 offset-2 ml-4 float-left" style="background-color: #627D93;">
@@ -73,7 +81,7 @@ $files = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users 
 					<h4><b>Archivos</b></h4>
 					<hr>
 					<span class="card-icon"><i class="fa fa-file"></i></span>
-					<h3 class="text-right"><b><?php echo $conn->query('SELECT * FROM files')->num_rows ?></b></h3>
+					<h3 class="text-right"><b><?php echo $db->query('SELECT * FROM files')->num_rows ?></b></h3>
 				</div>
 			</div>
 
@@ -82,7 +90,7 @@ $files = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users 
 					<h4><b>Carpetas</b></h4>
 					<hr>
 					<span class="card-icon"><i class="fa fa-file"></i></span>
-					<h3 class="text-right"><b><?php echo $conn->query('SELECT * FROM folders')->num_rows ?></b></h3>
+					<h3 class="text-right"><b><?php echo $db->query('SELECT * FROM folders')->num_rows ?></b></h3>
 				</div>
 			</div>
 		</div>
