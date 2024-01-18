@@ -1,4 +1,5 @@
 <?php
+include 'config.php';
 session_start();
 Class Action {
 	private $db;
@@ -16,17 +17,43 @@ Class Action {
 
 	function login(){
 		extract($_POST);
-		$qry = $this->db->query("SELECT * FROM users where username = '".$username."' and password = '".$password."' ");
+	
+		// Obtener la información del usuario
+		$qry = $this->db->query("SELECT * FROM users WHERE username = '".$username."'");
+	
 		if($qry->num_rows > 0){
-			foreach ($qry->fetch_array() as $key => $value) {
-				if($key != 'passwors' && !is_numeric($key))
-					$_SESSION['login_'.$key] = $value;
+			$user_data = $qry->fetch_assoc();
+	
+			$mensaje_encriptado = $user_data['password'];
+			$datos = base64_decode($mensaje_encriptado);
+			$iv = substr($datos, 0, openssl_cipher_iv_length("aes-128-cbc"));
+			$mensaje_encriptado = substr($datos, openssl_cipher_iv_length("aes-128-cbc"));
+			$decrypted_password = openssl_decrypt($mensaje_encriptado, "aes-128-cbc", CLAVE_SECRETA, 0, $iv);
+	
+			// Eliminar espacios en blanco al final de la cadena
+			$decrypted_password = trim($decrypted_password);
+	
+			// Verificar si la contraseña proporcionada coincide con la almacenada
+			if ($decrypted_password === $password) {
+				// Contraseña correcta, establecer variables de sesión
+				foreach ($user_data as $key => $value) {
+					if(!is_numeric($key)) {
+						$_SESSION['login_'.$key] = $value;
+					}
+				}
+				return 1; // Inicio de sesión exitoso
+			} else {
+				return 2; // Contraseña incorrecta
 			}
-			return 1;
-		}else{
-			return 2;
+		} else {
+			return 3; // Usuario no encontrado
 		}
 	}
+	
+	
+	
+
+	
 	function logout(){
 		session_destroy();
 		foreach ($_SESSION as $key => $value) {
@@ -158,12 +185,20 @@ Class Action {
 				return json_encode(array('status'=>1,'new_name'=>$file[0].'.'.$file[1]));
 		}
 	}
+	
 	function save_user(){
 		extract($_POST);
+	
 		$data = " name = '$name' ";
 		$data .= ", username = '$username' ";
-		$data .= ", password = '$password' ";
 		$data .= ", type = '$type' ";
+	
+        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length("aes-128-cbc"));
+        $mensaje_encriptado = openssl_encrypt($password, "aes-128-cbc", CLAVE_SECRETA, 0, $iv);
+        $encrypted_password = base64_encode($iv . $mensaje_encriptado);
+
+		$data .= ", password = '$encrypted_password'";
+	
 		if(empty($id)){
 			$save = $this->db->query("INSERT INTO users set ".$data);
 		}else{
@@ -172,8 +207,6 @@ Class Action {
 		if($save){
 			return 1;
 		}
-	}
-
-
+	}	
 }
 
