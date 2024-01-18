@@ -6,10 +6,10 @@ Class Action {
 	public function __construct() {
 		ob_start();
    		include_once 'db_connect.php';
-	   $dbInstance = Database::getInstance();
-	   $this->db = $dbInstance->getConnection();
- 
-	}
+		$dbInstance = Database::getInstance();
+	   	$this->db = $dbInstance->getConnection();
+		
+    	}
 	function __destruct() {
 	    $this->db->close();
 	    ob_end_flush();
@@ -17,18 +17,18 @@ Class Action {
 
 	function login(){
 		extract($_POST);
-		$qry = $this->db->query("SELECT * FROM users where username = '".$username."' and password = '".$password."' ");
-		if($qry->num_rows > 0){
+	$qry = $this->db->query("SELECT * FROM users where username = '".$username."' and password = '".$password."' ");
+			if($qry->num_rows > 0){
 			foreach ($qry->fetch_array() as $key => $value) {
 				if($key != 'passwors' && !is_numeric($key))
-					$_SESSION['login_'.$key] = $value;
-			}
-			return 1;
+						$_SESSION['login_'.$key] = $value;
+					}
+				return 1;
 		}else{
-			return 2;
+				return 2;
 		}
 	}
-	function logout(){
+		function logout(){
 		session_destroy();
 		foreach ($_SESSION as $key => $value) {
 			unset($_SESSION[$key]);
@@ -55,7 +55,7 @@ Class Action {
 				$save = $this->db->query("INSERT INTO folders set ".$data);
 				if($save)
 				return json_encode(array('status'=>1));
-			}	
+			}
 		}else{
 			$check = $this->db->query("SELECT * FROM folders where user_id ='".$_SESSION['login_id']."' and name  ='".$name."' and id !=".$id." and parent_id=".$parent_id)->num_rows;
 			if($check > 0){
@@ -87,8 +87,7 @@ Class Action {
 
 	function delete_user(){
 		extract($_POST);
-
-
+		
 		//$delete = $this->db->query("DELETE FROM users where id = ".$id);
 		$delete = $this->db->prepare("CALL sp_eliminarUsuario(?)");
 		$delete->bind_param("i", $id); 
@@ -166,18 +165,18 @@ Class Action {
 				return json_encode(array('status'=>1,'new_name'=>$file[0].'.'.$file[1]));
 		}
 	}
-	function save_user(){
+		function save_user(){
 		extract($_POST);
-		/* $data = " name = '$name' ";
+	/* $data = " name = '$name' ";
 		$data .= ", username = '$username' ";
 		$data .= ", password = '$password' ";
 		$data .= ", type = '$type' "; */
-
-		$name_data = " name = '$name' ";
+	
+        $name_data = " name = '$name' ";
 		$username_data = " username = '$username' ";
 		$password_data = " password = '$password' ";
 		$type_data = " type = '$type' ";
-
+	
 		if(empty($id)){
 			/* $save = $this->db->query("INSERT INTO users set ".$data); */
 			$stmt = $this->db->prepare("CALL sp_insertarUsuario(?, ?, ?, ?)");
@@ -196,9 +195,9 @@ Class Action {
 		}
 		if($stmt){
 			return 1;
-		} 
-		
-	}
+		}
+
+	}	
 
 
 }
