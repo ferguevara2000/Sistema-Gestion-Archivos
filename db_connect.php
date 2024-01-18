@@ -41,8 +41,6 @@ class Database {
 $db = Database::getInstance();
 $conn = $db->getConnection();
 
-// Resto del código aquí...
 
-// Cerrar la conexión al finalizar
 $db->closeConnection(); */
 ?>
