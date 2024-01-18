@@ -30,7 +30,7 @@
 		<div class="row">
 			<div class="col-md-4"></div>
 			<div class="col-md-4">
-				<h2 class=" text-center"><b>FILESYSTEM 2.1 </b></h2>
+				<h2 class=" text-center"><b>SISTEMA ARCHIVOS</b></h2>
 				<br>
 				<div class="text-center">
 					<img src="assets/logo.png" height="50%" width="50%">
