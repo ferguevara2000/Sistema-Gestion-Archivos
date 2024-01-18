@@ -5,9 +5,10 @@ Class Action {
 
 	public function __construct() {
 		ob_start();
-   	include 'db_connect.php';
-    
-    $this->db = $conn;
+   		include 'db_connect.php';
+	   $dbInstance = Database::getInstance();
+	   $this->db = $dbInstance->getConnection();
+ 
 	}
 	function __destruct() {
 	    $this->db->close();
@@ -54,7 +55,7 @@ Class Action {
 				$save = $this->db->query("INSERT INTO folders set ".$data);
 				if($save)
 				return json_encode(array('status'=>1));
-			}
+			}	
 		}else{
 			$check = $this->db->query("SELECT * FROM folders where user_id ='".$_SESSION['login_id']."' and name  ='".$name."' and id !=".$id." and parent_id=".$parent_id)->num_rows;
 			if($check > 0){
