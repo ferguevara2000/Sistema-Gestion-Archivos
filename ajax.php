@@ -1,7 +1,7 @@
 <?php
 ob_start();
 $action = $_GET['action'];
-include 'admin_class.php';
+include_once 'admin_class.php';
 $crud = new Action();
 
 if($action == 'login'){

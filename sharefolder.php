@@ -47,8 +47,10 @@
 </nav>
 <div class="containe-fluid">
 	<?php $user =  $_SESSION['login_id'] ?>
-	<?php include('db_connect.php');
-	$folder = $conn->query("SELECT f.*,u.name as uname FROM folders f inner join users u on u.id = f.user_id where f.is_public = 1");
+	<?php include_once('db_connect.php');
+	$dbInstance = Database::getInstance();
+	$db = $dbInstance->getConnection();
+	$folder = $db->query("SELECT f.*,u.name as uname FROM folders f inner join users u on u.id = f.user_id where f.is_public = 1");
 
 	?>
 
@@ -77,8 +79,10 @@
 								</td>
 							</tr>
 						<?php endwhile; ?>
-						<?php include('db_connect.php');
-						$folders = $conn->query("SELECT f.*,u.name as uname FROM folders f inner join users u on u.id = f.user_id where f.receptor_id = $user");
+						<?php include_once('db_connect.php');
+						$dbInstance = Database::getInstance();
+						$db = $dbInstance->getConnection();
+						$folders = $db->query("SELECT f.*,u.name as uname FROM folders f inner join users u on u.id = f.user_id where f.receptor_id = $user");
 						?>
 						<?php
 						while ($row = $folders->fetch_assoc()) :
@@ -111,12 +115,14 @@
 
 
 <?php
-include 'db_connect.php';
+include_once 'db_connect.php';
+$dbInstance = Database::getInstance();
+$db = $dbInstance->getConnection();
 $folder_parent = isset($_GET['fid']) ? $_GET['fid'] : 0;
-$folders = $conn->query("SELECT * FROM folders where parent_id = $folder_parent and user_id = '" . $_SESSION['login_id'] . "'  order by name asc");
+$folders = $db->query("SELECT * FROM folders where parent_id = $folder_parent and user_id = '" . $_SESSION['login_id'] . "'  order by name asc");
 
 
-$files = $conn->query("SELECT * FROM files where folder_id = $folder_parent and user_id = '" . $_SESSION['login_id'] . "'  order by name asc");
+$files = $db->query("SELECT * FROM files where folder_id = $folder_parent and user_id = '" . $_SESSION['login_id'] . "'  order by name asc");
 
 ?>
 <style>

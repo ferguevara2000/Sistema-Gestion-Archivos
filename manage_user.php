@@ -1,7 +1,9 @@
 <?php 
-include('db_connect.php');
+include_once('db_connect.php');
+$dbInstance = Database::getInstance();
+$db = $dbInstance->getConnection();
 if(isset($_GET['id'])){
-$user = $conn->query("SELECT * FROM users where id =".$_GET['id']);
+$user = $db->query("SELECT * FROM users where id =".$_GET['id']);
 foreach($user->fetch_array() as $k =>$v){
 	$meta[$k] = $v;
 }

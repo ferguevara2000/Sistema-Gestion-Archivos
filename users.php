@@ -26,7 +26,9 @@
 					<tbody>
 						<?php
 						include 'db_connect.php';
-						$users = $conn->query("SELECT * FROM users order by name asc");
+						$dbInstance = Database::getInstance();
+						$db = $dbInstance->getConnection();
+						$users = $db->query("SELECT * FROM users order by name asc");
 						$i = 1;
 						while ($row = $users->fetch_assoc()) :
 						?>

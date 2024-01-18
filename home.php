@@ -55,7 +55,7 @@
 	if (!isset($_SESSION['login_id']))
 	?>
 	<?php 
-		include('db_connect.php');
+		include_once('db_connect.php');
 		$dbInstance = Database::getInstance();
 		$db = $dbInstance->getConnection();
 

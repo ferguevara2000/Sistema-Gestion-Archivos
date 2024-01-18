@@ -1,7 +1,9 @@
 <?php 
-include('db_connect.php');
+include_once('db_connect.php');
+$dbInstance = Database::getInstance();
+$db = $dbInstance->getConnection();
 if(isset($_GET['id'])){
-$qry = $conn->query("SELECT * FROM folders where id=".$_GET['id']);
+$qry = $db->query("SELECT * FROM folders where id=".$_GET['id']);
 	if($qry->num_rows > 0){
 		foreach($qry->fetch_array() as $k => $v){
 			$meta[$k] = $v;
@@ -22,12 +24,15 @@ $qry = $conn->query("SELECT * FROM folders where id=".$_GET['id']);
 		<div class="form-group">
 				<label><i>Compartir con: </i></label>
 			
- 					<?php include 'db_connect.php'; ?>
+ 					<?php include_once 'db_connect.php'; ?>
  			<select name="receptor_id" id="receptor_id">
  				
 			<option selected value="">No compartir</option>
 		
-				<?php $query = $conn -> query ("SELECT * FROM users");
+				<?php 
+				$dbInstance = Database::getInstance();
+				$db = $dbInstance->getConnection();
+				$query = $db -> query ("SELECT * FROM users");
           while ($valores = mysqli_fetch_array($query)) {
             echo '<option value="'.$valores['id'].'">'.$valores['name'].'</option>';
           }

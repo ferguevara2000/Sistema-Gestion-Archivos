@@ -5,7 +5,7 @@ Class Action {
 
 	public function __construct() {
 		ob_start();
-   		include 'db_connect.php';
+   		include_once 'db_connect.php';
 	   $dbInstance = Database::getInstance();
 	   $this->db = $dbInstance->getConnection();
  
