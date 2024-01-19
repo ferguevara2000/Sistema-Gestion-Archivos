@@ -1,4 +1,5 @@
 <?php
+include 'config.php';
 session_start();
 Class Action {
 	private $db;
@@ -17,24 +18,47 @@ Class Action {
 
 	function login(){
 		extract($_POST);
-	$qry = $this->db->query("SELECT * FROM users where username = '".$username."' and password = '".$password."' ");
-			if($qry->num_rows > 0){
-			foreach ($qry->fetch_array() as $key => $value) {
-				if($key != 'passwors' && !is_numeric($key))
+	
+		// Obtener la información del usuario
+		$qry = $this->db->query("SELECT * FROM users WHERE username = '".$username."'");
+	
+		if($qry->num_rows > 0){
+			$user_data = $qry->fetch_assoc();
+	
+			$mensaje_encriptado = $user_data['password'];
+			$datos = base64_decode($mensaje_encriptado);
+			$iv = substr($datos, 0, openssl_cipher_iv_length("aes-128-cbc"));
+			$mensaje_encriptado = substr($datos, openssl_cipher_iv_length("aes-128-cbc"));
+			$decrypted_password = openssl_decrypt($mensaje_encriptado, "aes-128-cbc", CLAVE_SECRETA, 0, $iv);
+	
+			// Eliminar espacios en blanco al final de la cadena
+			$decrypted_password = trim($decrypted_password);
+	
+			// Verificar si la contraseña proporcionada coincide con la almacenada
+			if ($decrypted_password === $password) {
+				// Contraseña correcta, establecer variables de sesión
+				foreach ($user_data as $key => $value) {
+					if(!is_numeric($key)) {
 						$_SESSION['login_'.$key] = $value;
 					}
-				return 1;
-		}else{
-				return 2;
+				}
+				return 1; // Inicio de sesión exitoso
+			} else {
+				return 2; // Contraseña incorrecta
+			}
+		} else {
+			return 3; // Usuario no encontrado
 		}
 	}
-		function logout(){
+	
+	function logout(){
 		session_destroy();
 		foreach ($_SESSION as $key => $value) {
 			unset($_SESSION[$key]);
 		}
 		header("location:login.php");
 	}
+	
 
 	function save_folder(){
 		extract($_POST);
@@ -165,22 +189,24 @@ Class Action {
 				return json_encode(array('status'=>1,'new_name'=>$file[0].'.'.$file[1]));
 		}
 	}
-		function save_user(){
-		extract($_POST);
-	/* $data = " name = '$name' ";
-		$data .= ", username = '$username' ";
-		$data .= ", password = '$password' ";
-		$data .= ", type = '$type' "; */
 	
+	function save_user(){
+		extract($_POST);
         $name_data = " name = '$name' ";
 		$username_data = " username = '$username' ";
 		$password_data = " password = '$password' ";
 		$type_data = " type = '$type' ";
 	
+	
+        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length("aes-128-cbc"));
+        $mensaje_encriptado = openssl_encrypt($password, "aes-128-cbc", CLAVE_SECRETA, 0, $iv);
+        $encrypted_password = base64_encode($iv . $mensaje_encriptado);
+
+	
 		if(empty($id)){
 			/* $save = $this->db->query("INSERT INTO users set ".$data); */
 			$stmt = $this->db->prepare("CALL sp_insertarUsuario(?, ?, ?, ?)");
-			$stmt->bind_param("ssss", $name, $username, $password, $type);
+			$stmt->bind_param("ssss", $name, $username, $encrypted_password, $type);
 			$stmt->execute();
 			$stmt->close();
 
@@ -189,7 +215,7 @@ Class Action {
 			/* $save = $this->db->query("UPDATE users set ".$data." where id = ".$id); */
 			// Actualizar usuario utilizando el procedimiento almacenado
 			$stmt = $this->db->prepare("CALL sp_actualizarUsuario(?, ?, ?, ?, ?)");
-			$stmt->bind_param("issss", $id, $name, $username, $password, $type);
+			$stmt->bind_param("issss", $id, $name, $username, $encrypted_password, $type);
 			$stmt->execute();
 			$stmt->close();
 		}
@@ -200,5 +226,6 @@ Class Action {
 	}	
 
 
+		
 }
 
