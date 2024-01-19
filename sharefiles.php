@@ -52,8 +52,10 @@
 </nav>
 <div class="containe-fluid">
 	<?php $user =  $_SESSION['login_id'] ?>
-	<?php include('db_connect.php');
-	$files = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.is_public = 1 order by date(f.date_updated) desc");
+	<?php include_once('db_connect.php');
+	$dbInstance = Database::getInstance();
+	$db = $dbInstance->getConnection();
+	$files = $db->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.is_public = 1 order by date(f.date_updated) desc");
 
 	?>
 
@@ -109,8 +111,10 @@
 								</td>
 							</tr>
 						<?php endwhile; ?>
-						<?php include('db_connect.php');
-						$filess = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.receptor_id = $user order by date(f.date_updated) desc");
+						<?php include_once('db_connect.php');
+							$dbInstance = Database::getInstance();
+							$db = $dbInstance->getConnection();
+						$filess = $db->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where  f.receptor_id = $user order by date(f.date_updated) desc");
 						?>
 						<?php
 						while ($row = $filess->fetch_assoc()) :

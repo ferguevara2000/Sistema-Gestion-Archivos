@@ -1,10 +1,13 @@
 <?php
-include 'db_connect.php';
+include_once 'db_connect.php';
+$dbInstance = Database::getInstance();
+$db = $dbInstance->getConnection();
+
 $folder_parent = isset($_GET['fid']) ? $_GET['fid'] : 0;
-$folders = $conn->query("SELECT * FROM folders where parent_id = $folder_parent and user_id = '" . $_SESSION['login_id'] . "'  order by name asc");
+$folders = $db->query("SELECT * FROM folders where parent_id = $folder_parent and user_id = '" . $_SESSION['login_id'] . "'  order by name asc");
 
 
-$files = $conn->query("SELECT * FROM files where folder_id = $folder_parent and user_id = '" . $_SESSION['login_id'] . "'  order by name asc");
+$files = $db->query("SELECT * FROM files where folder_id = $folder_parent and user_id = '" . $_SESSION['login_id'] . "'  order by name asc");
 
 ?>
 <style>
@@ -62,8 +65,11 @@ $files = $conn->query("SELECT * FROM files where folder_id = $folder_parent and 
 
 		<?php
 		$id = $folder_parent;
+		$dbInstance = Database::getInstance();
+		$db = $dbInstance->getConnection();
 		while ($id > 0) {
-			$path = $conn->query("SELECT * FROM folders where id = $id  order by name asc")->fetch_array();
+			
+			$path = $db->query("SELECT * FROM folders where id = $id  order by name asc")->fetch_array();
 		?>
 			<li class="breadcrumb-item text-success"><?php echo $path['name']; ?></li>
 		<?php
@@ -160,8 +166,11 @@ $files = $conn->query("SELECT * FROM files where folder_id = $folder_parent and 
 								</tr>
 							<?php endwhile; ?>
 
-							<?php include('db_connect.php');
-							$filess = $conn->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where f.folder_id =$folder_parent and  f.receptor_id = $user order by date(f.date_updated) desc");
+							<?php include_once('db_connect.php');
+								$dbInstance = Database::getInstance();
+								$db = $dbInstance->getConnection();
+
+							$filess = $db->query("SELECT f.*,u.name as uname FROM files f inner join users u on u.id = f.user_id where f.folder_id =$folder_parent and  f.receptor_id = $user order by date(f.date_updated) desc");
 							?>
 							<?php
 							while ($row = $filess->fetch_assoc()) :

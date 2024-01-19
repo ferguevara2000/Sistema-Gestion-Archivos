@@ -1,5 +1,5 @@
  <?php
-   include 'db_connect.php';
+   include_once 'db_connect.php';
    // $qry = $conn->query("SELECT * FROM files where id=".$_GET['id'])->fetch_array();
 
    // extract($_POST);
@@ -13,7 +13,10 @@
 
    //        readfile($file); 
    $id = $_GET["id"];
-   $files = $conn->query("SELECT * FROM files where id = $id");
+   $dbInstance = Database::getInstance();
+   $db = $dbInstance->getConnection();
+
+   $files = $db->query("SELECT * FROM files where id = $id");
    $num = $files->fetch_array();
    $nombre = $num['file_path'];
    $ruta = "assets/uploads/" . $nombre;

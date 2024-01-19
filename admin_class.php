@@ -6,10 +6,11 @@ Class Action {
 
 	public function __construct() {
 		ob_start();
-   	include 'db_connect.php';
-    
-    $this->db = $conn;
-	}
+   		include_once 'db_connect.php';
+		$dbInstance = Database::getInstance();
+	   	$this->db = $dbInstance->getConnection();
+		
+    	}
 	function __destruct() {
 	    $this->db->close();
 	    ob_end_flush();
@@ -50,10 +51,6 @@ Class Action {
 		}
 	}
 	
-	
-	
-
-	
 	function logout(){
 		session_destroy();
 		foreach ($_SESSION as $key => $value) {
@@ -61,6 +58,7 @@ Class Action {
 		}
 		header("location:login.php");
 	}
+	
 
 	function save_folder(){
 		extract($_POST);
@@ -113,7 +111,13 @@ Class Action {
 
 	function delete_user(){
 		extract($_POST);
-		$delete = $this->db->query("DELETE FROM users where id = ".$id);
+		
+		//$delete = $this->db->query("DELETE FROM users where id = ".$id);
+		$delete = $this->db->prepare("CALL sp_eliminarUsuario(?)");
+		$delete->bind_param("i", $id); 
+		$delete->execute();
+		$delete->close();
+
 		if($delete)
 			return 1;
 	}
@@ -189,25 +193,40 @@ Class Action {
 	
 	function save_user(){
 		extract($_POST);
+        $name_data = " name = '$name' ";
+		$username_data = " username = '$username' ";
+		$password_data = " password = '$password' ";
+		$type_data = " type = '$type' ";
 	
-		$data = " name = '$name' ";
-		$data .= ", username = '$username' ";
-		$data .= ", type = '$type' ";
 	
         $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length("aes-128-cbc"));
         $mensaje_encriptado = openssl_encrypt($password, "aes-128-cbc", CLAVE_SECRETA, 0, $iv);
         $encrypted_password = base64_encode($iv . $mensaje_encriptado);
 
-		$data .= ", password = '$encrypted_password'";
 	
 		if(empty($id)){
-			$save = $this->db->query("INSERT INTO users set ".$data);
+			/* $save = $this->db->query("INSERT INTO users set ".$data); */
+			$stmt = $this->db->prepare("CALL sp_insertarUsuario(?, ?, ?, ?)");
+			$stmt->bind_param("ssss", $name, $username, $encrypted_password, $type);
+			$stmt->execute();
+			$stmt->close();
+
+			
 		}else{
-			$save = $this->db->query("UPDATE users set ".$data." where id = ".$id);
+			/* $save = $this->db->query("UPDATE users set ".$data." where id = ".$id); */
+			// Actualizar usuario utilizando el procedimiento almacenado
+			$stmt = $this->db->prepare("CALL sp_actualizarUsuario(?, ?, ?, ?, ?)");
+			$stmt->bind_param("issss", $id, $name, $username, $encrypted_password, $type);
+			$stmt->execute();
+			$stmt->close();
 		}
-		if($save){
+		if($stmt){
 			return 1;
 		}
+
 	}	
+
+
+		
 }
 
