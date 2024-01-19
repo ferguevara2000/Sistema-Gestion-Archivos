@@ -63,7 +63,19 @@ BEGIN
 END$$
 
 DELIMITER ;
+--------------------
+Vistas
+create 	view users_view AS
+SELECT * FROM users;
 
+
+SELECT * FROM users_view;
+create 	view folders_view AS
+SELECT * FROM folders;
+
+
+create 	view files_view AS
+SELECT * FROM files;
 
 
 
