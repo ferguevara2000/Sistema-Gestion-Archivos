@@ -70,10 +70,18 @@
 					<hr>
 					<span class="card-icon"><i class="fa fa-users"></i></span>
 					<h3 class="text-right"><b>
-						<?php 
-
-						echo $db->query('SELECT * FROM users')->num_rows 
-						?></b></h3>
+					<?php
+						$result = $db->query('SELECT COUNT(*) AS num_rows FROM users_view');
+						if ($result) {
+							$row = $result->fetch_assoc();
+							$numRows = $row['num_rows'];
+							echo $numRows;
+						} else {
+							echo "Error: " . $db->error;
+						}
+						$result->close();
+						?>
+						</b></h3>
 				</div>
 			</div>
 			<div class="card col-md-3 offset-2 ml-4 float-left" style="background-color: #627D93;">
@@ -81,7 +89,22 @@
 					<h4><b>Archivos</b></h4>
 					<hr>
 					<span class="card-icon"><i class="fa fa-file"></i></span>
-					<h3 class="text-right"><b><?php echo $db->query('SELECT * FROM files')->num_rows ?></b></h3>
+					<h3 class="text-right"><b>
+						<?php
+						 $result =  $db->query('SELECT COUNT(*) AS num_rows FROM files_view');
+						if ($result) {
+							$row = $result->fetch_assoc();
+							$numRows = $row['num_rows'];
+							echo $numRows;
+						} else {
+							echo "Error: " . $db->error;
+						}
+
+						// Cerrar el resultado
+						$result->close();
+						
+						?>
+					</b></h3>
 				</div>
 			</div>
 
@@ -90,7 +113,18 @@
 					<h4><b>Carpetas</b></h4>
 					<hr>
 					<span class="card-icon"><i class="fa fa-file"></i></span>
-					<h3 class="text-right"><b><?php echo $db->query('SELECT * FROM folders')->num_rows ?></b></h3>
+					<h3 class="text-right"><b>
+						<?php 
+						 $result =  $db->query('SELECT COUNT(*) AS num_rows FROM folders_view');
+						 if ($result) {
+							 $row = $result->fetch_assoc();
+							 $numRows = $row['num_rows'];
+							 echo $numRows;
+						 } else {
+							 echo "Error: " . $db->error;
+						 }
+ 						 $result->close();
+						?></b></h3>
 				</div>
 			</div>
 		</div>
